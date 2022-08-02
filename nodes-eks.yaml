@@ -11,7 +11,7 @@ Resources:
                         Ebs:
                             Iops: 3000
                             Throughput: 125
-                            VolumeSize: 18
+                            VolumeSize: 8
                             VolumeType: gp2
                 MetadataOptions:
                     HttpPutResponseHopLimit: 2
