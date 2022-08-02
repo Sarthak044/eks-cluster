@@ -23,15 +23,15 @@ Resources:
                     - 
                         DeviceName: /dev/xvda
                         Ebs:
-                            Iops: 3000
-                            Throughput: 125
+                            # Iops: 1000
+                            # Throughput: 125
                             VolumeSize: 8
                             VolumeType: gp2
                 MetadataOptions:
                     HttpPutResponseHopLimit: 2
                     HttpTokens: optional
                 SecurityGroupIds:
-                    - 'Fn::ImportValue': 'eks-test-cluster::ClusterSecurityGroupId'
+                    - 'Fn::ImportValue': 'eks-test::ClusterSecurityGroupId'
                 TagSpecifications:
                     - 
                         ResourceType: instance
@@ -97,7 +97,7 @@ Resources:
                 'Fn::Split':
                     - ','
                     - 
-                        'Fn::ImportValue': 'eks-test-cluster::SubnetsPublic'
+                        'Fn::ImportValue': 'eks-test::SubnetsPublic'
             Tags:
                 alpha.eksctl.io/nodegroup-name: test-nodes
                 alpha.eksctl.io/nodegroup-type: managed

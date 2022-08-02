@@ -280,7 +280,7 @@ Resources:
         Type: 'AWS::EC2::Subnet'
         Properties:
             AvailabilityZone: ap-south-1a
-            CidrBlock: 192.168.64.0/19
+            CidrBlock: 10.0.0.0/18
             Tags:
                 - 
                     Key: kubernetes.io/role/internal-elb
@@ -295,7 +295,7 @@ Resources:
         Type: 'AWS::EC2::Subnet'
         Properties:
             AvailabilityZone: ap-south-1b
-            CidrBlock: 192.168.96.0/19
+            CidrBlock: 10.0.128.0/18
             Tags:
                 - 
                     Key: kubernetes.io/role/internal-elb
@@ -310,7 +310,7 @@ Resources:
         Type: 'AWS::EC2::Subnet'
         Properties:
             AvailabilityZone: ap-south-1a
-            CidrBlock: 192.168.0.0/16
+            CidrBlock: 10.0.192.0/18
             MapPublicIpOnLaunch: true
             Tags:
                 - 
@@ -326,7 +326,7 @@ Resources:
         Type: 'AWS::EC2::Subnet'
         Properties:
             AvailabilityZone: ap-south-1b
-            CidrBlock: 192.168.32.0/16
+            CidrBlock: 10.0.64.0/18
             MapPublicIpOnLaunch: true
             Tags:
                 - 
@@ -341,7 +341,7 @@ Resources:
     VPC:
         Type: 'AWS::EC2::VPC'
         Properties:
-            CidrBlock: 192.168.0.0/16
+            CidrBlock: 10.0.0.0/16
             EnableDnsHostnames: true
             EnableDnsSupport: true
             Tags:
