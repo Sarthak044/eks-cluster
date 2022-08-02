@@ -1,19 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'EKS Managed Nodes (SSH access: false) [created by eksctl]'
-Mappings:
-    ServicePrincipalPartitionMap:
-        aws:
-            EC2: ec2.amazonaws.com
-            EKS: eks.amazonaws.com
-            EKSFargatePods: eks-fargate-pods.amazonaws.com
-        aws-cn:
-            EC2: ec2.amazonaws.com.cn
-            EKS: eks.amazonaws.com
-            EKSFargatePods: eks-fargate-pods.amazonaws.com
-        aws-us-gov:
-            EC2: ec2.amazonaws.com
-            EKS: eks.amazonaws.com
-            EKSFargatePods: eks-fargate-pods.amazonaws.com
+Description: 'EKS Managed Nodes (SSH access: false)'
 Resources:
     LaunchTemplate:
         Type: 'AWS::EC2::LaunchTemplate'
@@ -25,14 +11,13 @@ Resources:
                         Ebs:
                             Iops: 3000
                             Throughput: 125
-                            VolumeSize: 80
-                            VolumeType: gp3
+                            VolumeSize: 18
+                            VolumeType: gp2
                 MetadataOptions:
                     HttpPutResponseHopLimit: 2
                     HttpTokens: optional
                 SecurityGroupIds:
-                    - 
-                        Fn::ImportValue: "eksctl-eks-test-cluster::ClusterSecurityGroupId"
+                    - 'Fn::ImportValue': 'eks-test-cluster::ClusterSecurityGroupId'
                 TagSpecifications:
                     - 
                         ResourceType: instance
@@ -84,7 +69,7 @@ Resources:
                 alpha.eksctl.io/nodegroup-name: test-nodes
             LaunchTemplate:
                 Id:
-                    Ref: LaunchTemplate
+                    !Ref LaunchTemplate
             NodeRole:
                 'Fn::GetAtt':
                     - NodeInstanceRole
@@ -93,12 +78,12 @@ Resources:
             ScalingConfig:
                 DesiredSize: 2
                 MaxSize: 2
-                MinSize: 2
+                MinSize: 1
             Subnets:
                 'Fn::Split':
                     - ','
                     - 
-                        'Fn::ImportValue': 'eksctl-eks-test-cluster::SubnetsPublic'
+                        'Fn::ImportValue': 'eks-test-cluster::SubnetsPublic'
             Tags:
                 alpha.eksctl.io/nodegroup-name: test-nodes
                 alpha.eksctl.io/nodegroup-type: managed
@@ -117,7 +102,7 @@ Resources:
                                     'Fn::FindInMap':
                                         - ServicePrincipalPartitionMap
                                         - 
-                                            Ref: 'AWS::Partition'
+                                            !Ref 'AWS::Partition'
                                         - EC2
                 Version: '2012-10-17'
             ManagedPolicyArns:

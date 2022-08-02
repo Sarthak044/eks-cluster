@@ -8,7 +8,8 @@ Resources:
             Tags:
                 - 
                     Key: Name
-                    Value: '''Fn::Sub: "${AWS::StackName}/ClusterSharedNodeSecurityGroup"'''
+                    Value: 
+                        'Fn::Sub': '${AWS::StackName}/ClusterSharedNodeSecurityGroup'
             VpcId: !Ref VPC
     ControlPlane:
         Type: 'AWS::EKS::Cluster'
@@ -27,12 +28,13 @@ Resources:
                     - !Ref SubnetPrivateAPSOUTH1A
                     - !Ref SubnetPrivateAPSOUTH1B
             RoleArn:
-                '''"Fn::GetAtt":
-                    - ServiceRole
-                    - Arn'''
+                    "Fn::GetAtt":
+                        - ServiceRole
+                        - Arn
             Tags:
                 - Key: Name
-                  Value: 'Fn::Sub': '${AWS::StackName}/ControlPlane'
+                  Value: 
+                    "Fn::Sub": "${AWS::StackName}/ControlPlane"
                     
             Version: '1.22'
     ControlPlaneSecurityGroup:
@@ -43,19 +45,19 @@ Resources:
                 - 
                     Key: Name
                     Value:
-                        Fn::Sub: '${AWS::StackName}/ControlPlaneSecurityGroup'
+                        "Fn::Sub": "${AWS::StackName}/ControlPlaneSecurityGroup"
             VpcId:
-                Ref: VPC
+                !Ref VPC
     IngressDefaultClusterToNodeSG:
         Type: 'AWS::EC2::SecurityGroupIngress'
         Properties:
             Description: Allow managed and unmanaged nodes to communicate with each other (all ports)
             FromPort: 0
             GroupId:
-                Ref: ClusterSharedNodeSecurityGroup
+                !Ref ClusterSharedNodeSecurityGroup
             IpProtocol: '-1'
             SourceSecurityGroupId:
-                'Fn::GetAtt':
+                "Fn::GetAtt":
                     - ControlPlane
                     - ClusterSecurityGroupId
             ToPort: 65535
@@ -65,10 +67,10 @@ Resources:
             Description: Allow nodes to communicate with each other (all ports)
             FromPort: 0
             GroupId:
-                Ref: ClusterSharedNodeSecurityGroup
+                !Ref ClusterSharedNodeSecurityGroup
             IpProtocol: '-1'
             SourceSecurityGroupId:
-                Ref: ClusterSharedNodeSecurityGroup
+                !Ref ClusterSharedNodeSecurityGroup
             ToPort: 65535
     IngressNodeToDefaultClusterSG:
         Type: 'AWS::EC2::SecurityGroupIngress'
@@ -81,7 +83,7 @@ Resources:
                     - ClusterSecurityGroupId
             IpProtocol: '-1'
             SourceSecurityGroupId:
-                Ref: ClusterSharedNodeSecurityGroup
+                !Ref ClusterSharedNodeSecurityGroup
             ToPort: 65535
     InternetGateway:
         Type: 'AWS::EC2::InternetGateway'
@@ -99,7 +101,7 @@ Resources:
                     - NATIP
                     - AllocationId
             SubnetId:
-                Ref: SubnetPublicAPSOUTH1A
+                !Ref SubnetPublicAPSOUTH1A
             Tags:
                 - 
                     Key: Name
@@ -119,17 +121,17 @@ Resources:
         Properties:
             DestinationCidrBlock: 0.0.0.0/0
             NatGatewayId:
-                Ref: NATGateway
+                !Ref NATGateway
             RouteTableId:
-                Ref: PrivateRouteTableAPSOUTH1A
+                !Ref PrivateRouteTableAPSOUTH1A
     NATPrivateSubnetRouteAPSOUTH1B:
         Type: 'AWS::EC2::Route'
         Properties:
             DestinationCidrBlock: 0.0.0.0/0
             NatGatewayId:
-                Ref: NATGateway
+                !Ref NATGateway
             RouteTableId:
-                Ref: PrivateRouteTableAPSOUTH1B
+                !Ref PrivateRouteTableAPSOUTH1B
     PolicyCloudWatchMetrics:
         Type: 'AWS::IAM::Policy'
         Properties:
@@ -145,7 +147,7 @@ Resources:
                 'Fn::Sub': '${AWS::StackName}-PolicyCloudWatchMetrics'
             Roles:
                 - 
-                    Ref: ServiceRole
+                    !Ref ServiceRole
     PolicyELBPermissions:
         Type: 'AWS::IAM::Policy'
         Properties:
@@ -163,7 +165,7 @@ Resources:
                 'Fn::Sub': '${AWS::StackName}-PolicyELBPermissions'
             Roles:
                 - 
-                    Ref: ServiceRole
+                    !Ref ServiceRole
     PrivateRouteTableAPSOUTH1A:
         Type: 'AWS::EC2::RouteTable'
         Properties:
@@ -173,7 +175,7 @@ Resources:
                     Value:
                         'Fn::Sub': '${AWS::StackName}/PrivateRouteTableAPSOUTH1A'
             VpcId:
-                Ref: VPC
+                !Ref VPC
     PrivateRouteTableAPSOUTH1B:
         Type: 'AWS::EC2::RouteTable'
         Properties:
@@ -183,7 +185,7 @@ Resources:
                     Value:
                         'Fn::Sub': '${AWS::StackName}/PrivateRouteTableAPSOUTH1B'
             VpcId:
-                Ref: VPC
+                !Ref VPC
     PublicRouteTable:
         Type: 'AWS::EC2::RouteTable'
         Properties:
@@ -193,45 +195,45 @@ Resources:
                     Value:
                         'Fn::Sub': '${AWS::StackName}/PublicRouteTable'
             VpcId:
-                Ref: VPC
+                !Ref VPC
     PublicSubnetRoute:
         Type: 'AWS::EC2::Route'
         Properties:
             DestinationCidrBlock: 0.0.0.0/0
             GatewayId:
-                Ref: InternetGateway
+                !Ref InternetGateway
             RouteTableId:
-                Ref: PublicRouteTable
+                !Ref PublicRouteTable
         DependsOn:
             - VPCGatewayAttachment
     RouteTableAssociationPrivateAPSOUTH1A:
         Type: 'AWS::EC2::SubnetRouteTableAssociation'
         Properties:
             RouteTableId:
-                Ref: PrivateRouteTableAPSOUTH1A
+                !Ref PrivateRouteTableAPSOUTH1A
             SubnetId:
-                Ref: SubnetPrivateAPSOUTH1A
+                !Ref SubnetPrivateAPSOUTH1A
     RouteTableAssociationPrivateAPSOUTH1B:
         Type: 'AWS::EC2::SubnetRouteTableAssociation'
         Properties:
             RouteTableId:
-                Ref: PrivateRouteTableAPSOUTH1B
+                !Ref PrivateRouteTableAPSOUTH1B
             SubnetId:
-                Ref: SubnetPrivateAPSOUTH1B
+                !Ref SubnetPrivateAPSOUTH1B
     RouteTableAssociationPublicAPSOUTH1A:
         Type: 'AWS::EC2::SubnetRouteTableAssociation'
         Properties:
             RouteTableId:
-                Ref: PublicRouteTable
+                !Ref PublicRouteTable
             SubnetId:
-                Ref: SubnetPublicAPSOUTH1A
+                !Ref SubnetPublicAPSOUTH1A
     RouteTableAssociationPublicAPSOUTH1B:
         Type: 'AWS::EC2::SubnetRouteTableAssociation'
         Properties:
             RouteTableId:
-                Ref: PublicRouteTable
+                !Ref PublicRouteTable
             SubnetId:
-                Ref: SubnetPublicAPSOUTH1B
+                !Ref SubnetPublicAPSOUTH1B
     ServiceRole:
         Type: 'AWS::IAM::Role'
         Properties:
@@ -247,7 +249,7 @@ Resources:
                                     'Fn::FindInMap':
                                         - ServicePrincipalPartitionMap
                                         - 
-                                            Ref: 'AWS::Partition'
+                                            !Ref 'AWS::Partition'
                                         - EKS
                 Version: '2012-10-17'
             ManagedPolicyArns:
@@ -274,7 +276,7 @@ Resources:
                     Value:
                         'Fn::Sub': '${AWS::StackName}/SubnetPrivateAPSOUTH1A'
             VpcId:
-                Ref: VPC
+                !Ref VPC
     SubnetPrivateAPSOUTH1B:
         Type: 'AWS::EC2::Subnet'
         Properties:
@@ -289,12 +291,12 @@ Resources:
                     Value:
                         'Fn::Sub': '${AWS::StackName}/SubnetPrivateAPSOUTH1B'
             VpcId:
-                Ref: VPC
+                !Ref VPC
     SubnetPublicAPSOUTH1A:
         Type: 'AWS::EC2::Subnet'
         Properties:
             AvailabilityZone: ap-south-1a
-            CidrBlock: 192.168.0.0/19
+            CidrBlock: 192.168.0.0/16
             MapPublicIpOnLaunch: true
             Tags:
                 - 
@@ -305,12 +307,12 @@ Resources:
                     Value:
                         'Fn::Sub': '${AWS::StackName}/SubnetPublicAPSOUTH1A'
             VpcId:
-                Ref: VPC
+                !Ref VPC
     SubnetPublicAPSOUTH1B:
         Type: 'AWS::EC2::Subnet'
         Properties:
             AvailabilityZone: ap-south-1b
-            CidrBlock: 192.168.32.0/19
+            CidrBlock: 192.168.32.0/16
             MapPublicIpOnLaunch: true
             Tags:
                 - 
@@ -321,7 +323,7 @@ Resources:
                     Value:
                         'Fn::Sub': '${AWS::StackName}/SubnetPublicAPSOUTH1B'
             VpcId:
-                Ref: VPC
+                !Ref VPC
     VPC:
         Type: 'AWS::EC2::VPC'
         Properties:
@@ -337,9 +339,9 @@ Resources:
         Type: 'AWS::EC2::VPCGatewayAttachment'
         Properties:
             InternetGatewayId:
-                Ref: InternetGateway
+                !Ref InternetGateway
             VpcId:
-                Ref: VPC
+                !Ref VPC
 Outputs:
     ARN:
         Value:
@@ -364,7 +366,7 @@ Outputs:
                 'Fn::Sub': '${AWS::StackName}::ClusterSecurityGroupId'
     ClusterStackName:
         Value:
-            Ref: 'AWS::StackName'
+            !Ref 'AWS::StackName'
     Endpoint:
         Value:
             'Fn::GetAtt':
@@ -377,7 +379,7 @@ Outputs:
         Value: Single
     SecurityGroup:
         Value:
-            Ref: ControlPlaneSecurityGroup
+            !Ref ControlPlaneSecurityGroup
         Export:
             Name:
                 'Fn::Sub': '${AWS::StackName}::SecurityGroup'
@@ -391,7 +393,7 @@ Outputs:
                 'Fn::Sub': '${AWS::StackName}::ServiceRoleARN'
     SharedNodeSecurityGroup:
         Value:
-            Ref: ClusterSharedNodeSecurityGroup
+            !Ref ClusterSharedNodeSecurityGroup
         Export:
             Name:
                 'Fn::Sub': '${AWS::StackName}::SharedNodeSecurityGroup'
@@ -401,9 +403,9 @@ Outputs:
                 - ','
                 - 
                     - 
-                        Ref: SubnetPrivateAPSOUTH1A
+                        !Ref SubnetPrivateAPSOUTH1A
                     - 
-                        Ref: SubnetPrivateAPSOUTH1B
+                        !Ref SubnetPrivateAPSOUTH1B
         Export:
             Name:
                 'Fn::Sub': '${AWS::StackName}::SubnetsPrivate'
@@ -413,15 +415,15 @@ Outputs:
                 - ','
                 - 
                     - 
-                        Ref: SubnetPublicAPSOUTH1A
+                        !Ref SubnetPublicAPSOUTH1A
                     - 
-                        Ref: SubnetPublicAPSOUTH1B
+                        !Ref SubnetPublicAPSOUTH1B
         Export:
             Name:
                 'Fn::Sub': '${AWS::StackName}::SubnetsPublic'
     VPC:
         Value:
-            Ref: VPC
+            !Ref VPC
         Export:
             Name:
                 'Fn::Sub': '${AWS::StackName}::VPC'
