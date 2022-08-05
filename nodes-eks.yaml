@@ -13,7 +13,18 @@ Mappings:
         aws-us-gov:
             EC2: ec2.amazonaws.com
             EKS: eks.amazonaws.com
-            EKSFargatePods: eks-fargate-pods.amazonaws.com
+            EKSFargatePods: eks-fargate-pods.amazonaws.com  
+    PartitionMap:
+      aws:
+        EC2ServicePrincipal: "ec2.amazonaws.com"
+      aws-us-gov:
+        EC2ServicePrincipal: "ec2.amazonaws.com"
+      aws-cn:
+        EC2ServicePrincipal: "ec2.amazonaws.com.cn"
+      aws-iso:
+        EC2ServicePrincipal: "ec2.c2s.ic.gov"
+      aws-iso-b:
+        EC2ServicePrincipal: "ec2.sc2s.sgov.gov"
 Resources:
     LaunchTemplate:
         Type: "AWS::EC2::LaunchTemplate"
