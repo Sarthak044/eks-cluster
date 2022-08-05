@@ -1,5 +1,5 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: 'EKS Managed Nodes (SSH access: false)'
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "EKS Managed Nodes (SSH access: false)"
 Mappings:
     ServicePrincipalPartitionMap:
         aws:
@@ -16,63 +16,50 @@ Mappings:
             EKSFargatePods: eks-fargate-pods.amazonaws.com
 Resources:
     LaunchTemplate:
-        Type: 'AWS::EC2::LaunchTemplate'
+        Type: "AWS::EC2::LaunchTemplate"
         Properties:
             LaunchTemplateData:
                 BlockDeviceMappings:
-                    - 
-                        DeviceName: /dev/xvda
-                        Ebs:
-                            # Iops: 1000
-                            # Throughput: 125
-                            VolumeSize: 8
-                            VolumeType: gp2
+                    - DeviceName: /dev/xvda
+                      Ebs:
+                          # Iops: 1000
+                          # Throughput: 125
+                          VolumeSize: 8
+                          VolumeType: gp2
                 MetadataOptions:
                     HttpPutResponseHopLimit: 2
                     HttpTokens: optional
                 SecurityGroupIds:
-                    - 'Fn::ImportValue': 'eks-test::ClusterSecurityGroupId'
+                    - "Fn::ImportValue": "eks-test::ClusterSecurityGroupId"
                 TagSpecifications:
-                    - 
-                        ResourceType: instance
-                        Tags:
-                            - 
-                                Key: Name
-                                Value: eks-test-test-nodes-Node
-                            - 
-                                Key: alpha.eksctl.io/nodegroup-name
-                                Value: test-nodes
-                            - 
-                                Key: alpha.eksctl.io/nodegroup-type
-                                Value: managed
-                    - 
-                        ResourceType: volume
-                        Tags:
-                            - 
-                                Key: Name
-                                Value: eks-test-test-nodes-Node
-                            - 
-                                Key: alpha.eksctl.io/nodegroup-name
-                                Value: test-nodes
-                            - 
-                                Key: alpha.eksctl.io/nodegroup-type
-                                Value: managed
-                    - 
-                        ResourceType: network-interface
-                        Tags:
-                            - 
-                                Key: Name
-                                Value: eks-test-test-nodes-Node
-                            - 
-                                Key: alpha.eksctl.io/nodegroup-name
-                                Value: test-nodes
-                            - 
-                                Key: alpha.eksctl.io/nodegroup-type
-                                Value: managed
+                    - ResourceType: instance
+                      Tags:
+                          - Key: Name
+                            Value: eks-test-test-nodes-Node
+                          - Key: alpha.eksctl.io/nodegroup-name
+                            Value: test-nodes
+                          - Key: alpha.eksctl.io/nodegroup-type
+                            Value: managed
+                    - ResourceType: volume
+                      Tags:
+                          - Key: Name
+                            Value: eks-test-test-nodes-Node
+                          - Key: alpha.eksctl.io/nodegroup-name
+                            Value: test-nodes
+                          - Key: alpha.eksctl.io/nodegroup-type
+                            Value: managed
+                    - ResourceType: network-interface
+                      Tags:
+                          - Key: Name
+                            Value: eks-test-test-nodes-Node
+                          - Key: alpha.eksctl.io/nodegroup-name
+                            Value: test-nodes
+                          - Key: alpha.eksctl.io/nodegroup-type
+                            Value: managed
             LaunchTemplateName:
-                'Fn::Sub': '${AWS::StackName}'
+                "Fn::Sub": "${AWS::StackName}"
     ManagedNodeGroup:
-        Type: 'AWS::EKS::Nodegroup'
+        Type: "AWS::EKS::Nodegroup"
         Properties:
             AmiType: AL2_x86_64
             ClusterName: eks-test
@@ -82,10 +69,9 @@ Resources:
                 alpha.eksctl.io/cluster-name: eks-test
                 alpha.eksctl.io/nodegroup-name: test-nodes
             LaunchTemplate:
-                Id:
-                    !Ref LaunchTemplate
+                Id: !Ref LaunchTemplate
             NodeRole:
-                'Fn::GetAtt':
+                "Fn::GetAtt":
                     - NodeInstanceRole
                     - Arn
             NodegroupName: test-nodes
@@ -94,43 +80,40 @@ Resources:
                 MaxSize: 2
                 MinSize: 1
             Subnets:
-                'Fn::Split':
-                    - ','
-                    - 
-                        'Fn::ImportValue': 'eks-test::SubnetsPublic'
+                "Fn::Split":
+                    - ","
+                    - "Fn::ImportValue": "eks-test::SubnetsPublic"
             Tags:
                 alpha.eksctl.io/nodegroup-name: test-nodes
                 alpha.eksctl.io/nodegroup-type: managed
     NodeInstanceRole:
-        Type: 'AWS::IAM::Role'
+        Type: "AWS::IAM::Role"
         Properties:
             AssumeRolePolicyDocument:
                 Statement:
-                    - 
-                        Action:
-                            - 'sts:AssumeRole'
-                        Effect: Allow
-                        Principal:
-                            Service:
-                                - 
-                                    'Fn::FindInMap':
-                                        - ServicePrincipalPartitionMap
-                                        - 
-                                            !Ref 'AWS::Partition'
-                                        - EC2
-                Version: '2012-10-17'
+                    - Action:
+                          - "sts:AssumeRole"
+                      Effect: Allow
+                      Principal:
+                        #   Service:
+                        #       - "Fn::FindInMap":
+                        #             - ServicePrincipalPartitionMap
+                        #             - !Ref "AWS::Partition"
+                        #             - EC2
+                          Service:
+                              - !FindInMap [
+                                  PartitionMap,
+                                  !Ref "AWS::Partition",
+                                  EC2ServicePrincipal,
+                                ]
+                Version: "2012-10-17"
             ManagedPolicyArns:
-                - 
-                    'Fn::Sub': 'arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly'
-                - 
-                    'Fn::Sub': 'arn:${AWS::Partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy'
-                - 
-                    'Fn::Sub': 'arn:${AWS::Partition}:iam::aws:policy/AmazonEKS_CNI_Policy'
-                - 
-                    'Fn::Sub': 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'
+                - "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+                - "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+                - "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/AmazonEKS_CNI_Policy"
+                - "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
             Path: /
             Tags:
-                - 
-                    Key: Name
-                    Value:
-                        'Fn::Sub': '${AWS::StackName}/NodeInstanceRole'
+                - Key: Name
+                  Value:
+                      "Fn::Sub": "${AWS::StackName}/NodeInstanceRole"
